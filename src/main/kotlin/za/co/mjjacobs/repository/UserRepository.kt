@@ -10,7 +10,9 @@ import java.util.UUID
 class UserRepository {
     
     //  Production app this will be your database
-    private val users = mutableListOf<User>()
+    private val users = mutableListOf(
+        User(id = UUID.randomUUID(), username = "admin", password = "password", role = "ADMIN")
+    )
     
     fun findAll(): List<User> = users
     

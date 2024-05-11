@@ -6,7 +6,6 @@ import com.auth0.jwt.algorithms.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.jwt.*
 import za.co.mjjacobs.repository.*
-import za.co.mjjacobs.routing.request.*
 import java.util.*
 
 /**
@@ -28,16 +27,23 @@ class JwtService(
         .withIssuer(issuer)
         .build()
     
-    fun createAccessToken(username: String): String {
-        return createJwtToken(username, 3_600_00)
+    fun createAccessToken(
+        username: String,
+        role: String
+    ): String {
+        return createJwtToken(username, role, 3_600_00)
     }
     
-    fun createRefreshToken(username: String): String {
-        return createJwtToken(username, 86_400_000)
+    fun createRefreshToken(
+        username: String,
+        role: String
+    ): String {
+        return createJwtToken(username, role, 86_400_000)
     }
     
     private fun createJwtToken(
         username: String,
+        role: String,
         expireIn: Int
     ): String {
         return JWT
@@ -45,6 +51,7 @@ class JwtService(
             .withAudience(audience)
             .withIssuer(issuer)
             .withClaim("username", username)
+            .withClaim("role", role)
             .withExpiresAt(Date(System.currentTimeMillis() + expireIn))
             .sign(Algorithm.HMAC512(secret))
     }
