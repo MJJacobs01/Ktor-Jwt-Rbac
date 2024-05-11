@@ -6,6 +6,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import za.co.mjjacobs.routing.request.*
+import za.co.mjjacobs.routing.response.*
 import za.co.mjjacobs.service.*
 
 /**
@@ -13,19 +14,34 @@ import za.co.mjjacobs.service.*
  */
 
 fun Route.authRoute(
-    jwtService: JwtService
+    userService: UserService
 ) {
     
     post {
         val loginRequest = call.receive<LoginRequest>()
         
-        val token = jwtService.createJwtToken(loginRequest = loginRequest)
+        val authResponse: AuthResponse? = userService.authenticate(loginRequest)
         
-        token?.let {
+        authResponse?.let {
             call.respond(
                 status = HttpStatusCode.OK,
-                message = hashMapOf("token" to it)
+                message = it
             )
         } ?: call.respond(HttpStatusCode.Unauthorized)
+    }
+    
+    post("/refresh") {
+        val request = call.receive<RefreshTokenRequest>()
+        
+        val newAccessToken: String? = userService.refreshToken(request.token)
+        
+        newAccessToken?.let {
+            call.respond(
+                status = HttpStatusCode.OK,
+                message = RefreshTokenRequest(token = it)
+            )
+        } ?: call.respond(
+            message = HttpStatusCode.Unauthorized
+        )
     }
 }

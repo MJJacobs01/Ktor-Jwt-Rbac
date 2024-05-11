@@ -9,13 +9,12 @@ import za.co.mjjacobs.service.*
  */
 
 fun Application.configureRouting(
-    userService: UserService,
-    jwtService: JwtService
+    userService: UserService
 ) {
     
     routing {
         route("/api/auth") {
-            authRoute(jwtService = jwtService)
+            authRoute(userService)
         }
         
         route("/api/user") {

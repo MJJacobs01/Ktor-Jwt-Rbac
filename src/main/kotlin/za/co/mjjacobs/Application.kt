@@ -12,13 +12,18 @@ fun main(args: Array<String>) {
 
 fun Application.module() {
     val userRepository = UserRepository()
-    val userService = UserService(userRepository)
     val jwtService = JwtService(
         application = this,
-        userService = userService
+        userRepository = userRepository
+    )
+    val refreshTokenRepository = RefreshTokenRepository()
+    val userService = UserService(
+        userRepository = userRepository,
+        jwtService = jwtService,
+        refreshTokenRepository = refreshTokenRepository
     )
     
     configureSerialization()
     configureSecurity(jwtService = jwtService)
-    configureRouting(userService = userService, jwtService = jwtService)
+    configureRouting(userService = userService)
 }
